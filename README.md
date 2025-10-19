@@ -93,7 +93,7 @@
 
 **For Windows Users** - Get the standalone portable application:
 
-**📦 [Download Perplexity-3D-Search-2.0.0-portable.exe](https://github.com/yourusername/perplexity-3d-search/releases/latest)**
+**📦 [Download Perplexity-3D-Search-2.0.0-portable.exe](https://github.com/MushroomFleet/3d-websearch-NM3/releases/latest)**
 
 #### System Requirements
 - Windows 10 or Windows 11 (64-bit)
@@ -115,7 +115,6 @@
 4. Configure your API key on first launch
 5. Start searching!
 
-**📄 [Read Full Release Notes](3D-Web-Search.md)** for detailed instructions, troubleshooting, and features.
 
 ---
 
@@ -165,7 +164,7 @@
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/yourusername/perplexity-3d-search.git
+git clone https://github.com/MushroomFleet/3d-websearch-NM3
 cd perplexity-3d-search
 
 # 2. Install dependencies
@@ -320,7 +319,7 @@ Full 3D spatial format (Nested Markdown 3D specification):
 #### Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/perplexity-3d-search.git
+git clone https://github.com/MushroomFleet/3d-websearch-NM3
 cd perplexity-3d-search
 npm install
 ```
@@ -500,11 +499,6 @@ npm run electron:build
 - Ensure antivirus not blocking electron-store
 - Try running as Administrator
 
-### Getting Help
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/perplexity-3d-search/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/perplexity-3d-search/discussions)
-- **Release Notes**: [3D-Web-Search.md](3D-Web-Search.md)
 
 ---
 
@@ -534,11 +528,11 @@ Contributions are welcome! Please:
 If you use this in research or projects:
 
 ```bibtex
-@software{perplexity_3d_search,
-  title = {Perplexity 3D Search: Interactive Web Search Visualization},
-  author = {[Your Name]},
+@software{3d_websearch_nm3,
+  title = {3d websearch NM3: 3D perplexity search, NM3 graph export},
+  author = {[Drift Johnson]},
   year = {2025},
-  url = {https://github.com/yourusername/perplexity-3d-search},
+  url = {https://github.com/MushroomFleet/3d-websearch-NM3},
   version = {2.0.0}
 }
 ```
@@ -572,26 +566,6 @@ If you find this project useful:
 
 ---
 
-## 📚 Citation
-
-### Academic Citation
-
-If you use this codebase in your research or project, please cite:
-
-```bibtex
-@software{project_name,
-  title = {Project Name: description},
-  author = {[Drift Johnson]},
-  year = {2025},
-  url = {https://github.com/MushroomFleet/project-name},
-  version = {1.0.0}
-}
-```
-
-### Donate:
-
-[![Ko-Fi](https://cdn.ko-fi.com/cdn/kofi3.png?v=3)](https://ko-fi.com/driftjohnson)
-
 <div align="center">
 
 **[⬆ Back to Top](#perplexity-3d-search-visualization)**
@@ -601,4 +575,5 @@ Made with ❤️ for visual thinkers and curious minds
 **Version 2.0.0** • **October 2025**
 
 </div>
+
 

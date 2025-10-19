@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Search Results Visualization</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+            overflow: hidden;
+            height: 100vh;
+            color: #e0e0e0;
+        }
+
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 350px;
+            border-left: 3px solid #4ECDC4;
+            z-index: 10;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        #info h2 {
+            color: #4ECDC4;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        #info p {
+            margin: 5px 0;
+            color: #b0b0b0;
+        }
+
+        #tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 6px;
+            pointer-events: none;
+            display: none;
+            border: 1px solid #4ECDC4;
+            font-size: 12px;
+            max-width: 300px;
+            z-index: 100;
+            word-wrap: break-word;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: center;
+            border-top: 1px solid #4ECDC4;
+        }
+
+        .control-hint {
+            color: #4ECDC4;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        #stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-size: 12px;
+            border-left: 3px solid #FF6B6B;
+        }
+
+        .stat-item {
+            margin: 5px 0;
+            color: #b0b0b0;
+        }
+
+        .stat-label {
+            color: #FF6B6B;
+            font-weight: bold;
+        }
+
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #4ECDC4;
+            display: none;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 3px solid rgba(78, 205, 196, 0.3);
+            border-top-color: #4ECDC4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        a {
+            color: #4ECDC4;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <div id="info">
+        <h2>3D Search Visualization</h2>
+        <p><strong>Total Results:</strong> <%= totalResults %></p>
+        <p><strong>Generated:</strong> <%= timestamp.split('T')[0] %></p>
+        <p style="margin-top: 10px; color: #90ee90;">Hover over nodes to see details. Click to visit.</p>
+    </div>
+
+    <div id="stats">
+        <div class="stat-item"><span class="stat-label">FPS:</span> <span id="fps">0</span></div>
+        <div class="stat-item"><span class="stat-label">Nodes:</span> <%= totalResults %></div>
+        <div class="stat-item"><span class="stat-label">Camera:</span> <span id="distance">0</span></div>
+    </div>
+
+    <div id="tooltip"></div>
+
+    <div id="controls">
+        <div class="control-hint">🖱️ DRAG: Rotate | SCROLL: Zoom | CLICK: Visit Website</div>
+        <div style="color: #b0b0b0; margin-top: 8px;">SPACEBAR: Toggle Auto-Rotation | R: Reset View</div>
+    </div>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Initializing 3D Visualization...</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Data passed from server
+        const nodeDataArray = <%- JSON.stringify(nodes) %>;
+
+        // Scene setup
+        const container = document.getElementById('canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+        const renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setClearColor(0x0f172a, 1);
+
+        camera.position.z = 250;
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(100, 100, 100);
+        scene.add(pointLight);
+
+        // Create nodes
+        const nodes = [];
+        const nodeGroup = new THREE.Group();
+
+        nodeDataArray.forEach((nodeData, index) => {
+            const geometry = new THREE.IcosahedronGeometry(8, 4);
+            const material = new THREE.MeshPhongMaterial({
+                color: nodeData.color,
+                emissive: 0x000000,
+                shininess: 100
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+
+            mesh.position.set(nodeData.position.x, nodeData.position.y, nodeData.position.z);
+            mesh.userData = nodeData;
+
+            const edgeGeometry = new THREE.EdgesGeometry(geometry);
+            const line = new THREE.LineSegments(edgeGeometry, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 }));
+            mesh.add(line);
+
+            nodeGroup.add(mesh);
+            nodes.push(mesh);
+        });
+
+        scene.add(nodeGroup);
+
+        // Draw connecting lines
+        const lineGeometry = new THREE.BufferGeometry();
+        const linePositions = [];
+
+        nodeDataArray.forEach((node, i) => {
+            const otherIndices = [
+                (i + 1) % nodeDataArray.length,
+                (i + 2) % nodeDataArray.length,
+                Math.floor(Math.random() * nodeDataArray.length)
+            ];
+
+            otherIndices.forEach(j => {
+                linePositions.push(
+                    nodeDataArray[i].position.x, nodeDataArray[i].position.y, nodeDataArray[i].position.z,
+                    nodeDataArray[j].position.x, nodeDataArray[j].position.y, nodeDataArray[j].position.z
+                );
+            });
+        });
+
+        lineGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(linePositions), 3));
+        const lineMaterial = new THREE.LineBasicMaterial({ color: 0x4ECDC4, transparent: true, opacity: 0.1 });
+        const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+        scene.add(lines);
+
+        // Interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let hoveredNode = null;
+        let autoRotate = false;
+        let zoomLevel = 250;
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(nodes);
+
+            const tooltip = document.getElementById('tooltip');
+
+            if (intersects.length > 0) {
+                hoveredNode = intersects[0].object;
+                const data = hoveredNode.userData;
+
+                tooltip.style.display = 'block';
+                tooltip.style.left = (e.clientX + 10) + 'px';
+                tooltip.style.top = (e.clientY + 10) + 'px';
+                tooltip.innerHTML = `
+                    <strong>${data.name}</strong><br>
+                    ${data.description}<br>
+                    <a href="${data.url}" target="_blank">Visit Website →</a>
+                `;
+
+                hoveredNode.material.emissive.setHex(0x444444);
+            } else {
+                if (hoveredNode) {
+                    hoveredNode.material.emissive.setHex(0x000000);
+                    hoveredNode = null;
+                }
+                tooltip.style.display = 'none';
+            }
+        });
+
+        window.addEventListener('click', () => {
+            if (hoveredNode) {
+                const url = hoveredNode.userData.url;
+                window.open(url, '_blank');
+            }
+        });
+
+        window.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            zoomLevel += e.deltaY * 0.1;
+            zoomLevel = Math.max(50, Math.min(500, zoomLevel));
+            camera.position.z = zoomLevel;
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                autoRotate = !autoRotate;
+            }
+            if (e.code === 'KeyR') {
+                camera.position.z = 250;
+                zoomLevel = 250;
+                nodeGroup.rotation.set(0, 0, 0);
+            }
+        });
+
+        // Mouse drag rotation
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                nodeGroup.rotation.y += deltaX * 0.005;
+                nodeGroup.rotation.x += deltaY * 0.005;
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        container.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Performance monitoring
+        let frameCount = 0;
+        let lastTime = Date.now();
+
+        function updateStats() {
+            frameCount++;
+            const currentTime = Date.now();
+            if (currentTime - lastTime >= 1000) {
+                document.getElementById('fps').textContent = frameCount;
+                document.getElementById('distance').textContent = Math.round(camera.position.z) + ' units';
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (autoRotate) {
+                nodeGroup.rotation.x += 0.0005;
+                nodeGroup.rotation.y += 0.001;
+            }
+
+            renderer.render(scene, camera);
+            updateStats();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start animation
+        animate();
+
+        // Hide loading screen
+        document.getElementById('loading').style.display = 'none';
+    </script>
+</body>
+</html>

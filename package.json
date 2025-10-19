@@ -1,0 +1,29 @@
+{
+  "name": "perplexity-3d-viz",
+  "version": "1.0.0",
+  "description": "Search with Perplexity API and visualize results in 3D",
+  "main": "search-and-format.js",
+  "scripts": {
+    "search": "node search-and-format.js",
+    "visualize": "node generate-visualization.js",
+    "server": "node server.js",
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "perplexity",
+    "search",
+    "api",
+    "3d",
+    "visualization"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  }
+}

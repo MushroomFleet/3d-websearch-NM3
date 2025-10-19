@@ -572,6 +572,26 @@ If you find this project useful:
 
 ---
 
+## 📚 Citation
+
+### Academic Citation
+
+If you use this codebase in your research or project, please cite:
+
+```bibtex
+@software{project_name,
+  title = {Project Name: description},
+  author = {[Drift Johnson]},
+  year = {2025},
+  url = {https://github.com/MushroomFleet/project-name},
+  version = {1.0.0}
+}
+```
+
+### Donate:
+
+[![Ko-Fi](https://cdn.ko-fi.com/cdn/kofi3.png?v=3)](https://ko-fi.com/driftjohnson)
+
 <div align="center">
 
 **[⬆ Back to Top](#perplexity-3d-search-visualization)**
@@ -581,3 +601,4 @@ Made with ❤️ for visual thinkers and curious minds
 **Version 2.0.0** • **October 2025**
 
 </div>
+

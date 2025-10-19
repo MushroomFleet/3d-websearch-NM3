@@ -1,4 +1,4 @@
-# Perplexity 3D Search Visualization
+# 3D web search to NM3 Visualization
 
 > Transform web search results into an interactive 3D visualization with real-time search, configurable models, and multiple export formats.
 
@@ -298,15 +298,16 @@ Full 3D spatial format (Nested Markdown 3D specification):
 If you use this codebase in your research or project, please cite:
 
 ```bibtex
-@software{project_name,
-  title = {Project Name: description},
+@software{3d_websearch_nm3,
+  title = {3d websearch NM3: description},
   author = {[Drift Johnson]},
   year = {2025},
-  url = {https://github.com/MushroomFleet/project-name},
+  url = {https://github.com/MushroomFleet/3d-websearch-NM3},
   version = {1.0.0}
 }
 ```
 
 ### Donate:
+
 
 [![Ko-Fi](https://cdn.ko-fi.com/cdn/kofi3.png?v=3)](https://ko-fi.com/driftjohnson)
